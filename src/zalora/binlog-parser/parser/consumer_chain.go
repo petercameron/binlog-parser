@@ -30,6 +30,10 @@ func (c *ConsumerChain) IncludeSchemas(schemas ...string) {
 	c.predicates = append(c.predicates, schemaPredicate(schemas...))
 }
 
+func (c *ConsumerChain) IncludeStartBinlogPosition(startBinlogPosition uint64) {
+	c.predicates = append(c.predicates, startBinlogPositionPredicate(startBinlogPosition))
+}
+
 func (c *ConsumerChain) PrettyPrint(prettyPrint bool) {
 	c.prettyPrint = prettyPrint
 }
@@ -97,6 +101,12 @@ func tablesPredicate(tables ...string) predicate {
 		}
 
 		return contains(tables, message.GetHeader().Table)
+	}
+}
+
+func startBinlogPositionPredicate(startBinlogPosition uint64) predicate {
+	return func(message messages.Message) bool {
+		return uint64(message.GetHeader().BinlogPosition) > startBinlogPosition
 	}
 }
 
