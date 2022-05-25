@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"os"
+	"strconv"
 	"path"
 	"strings"
 	"zalora/binlog-parser/parser"
@@ -13,6 +14,7 @@ import (
 var prettyPrintJsonFlag = flag.Bool("prettyprint", false, "Pretty print json")
 var includeTablesFlag = flag.String("include_tables", "", "comma-separated list of tables to include")
 var includeSchemasFlag = flag.String("include_schemas", "", "comma-separated list of schemas to include")
+var includeStartBinlogPositionFlag = flag.String("start_binlog_position", "", "starting binlog position")
 
 func main() {
 	flag.Usage = func() {
@@ -63,6 +65,13 @@ func consumerChainFromArgs() parser.ConsumerChain {
 
 		chain.IncludeSchemas(includeSchemas...)
 		glog.V(1).Infof("Including schemas %v", includeSchemas)
+	}
+
+	if *includeStartBinlogPositionFlag != "" {
+        startBinlogPosition, _ := strconv.ParseUint(*includeStartBinlogPositionFlag, 10, 64)
+
+		chain.IncludeStartBinlogPosition(startBinlogPosition)
+		glog.V(1).Infof("Including start-binlog-position %v", startBinlogPosition)
 	}
 
 	return chain
